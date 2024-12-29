@@ -1,6 +1,6 @@
 var map = new maplibregl.Map({
       container: 'map',
-      style: 'https://openmaptiles.github.io/osm-bright-gl-style/style-cdn.json',
+      style: 'https://tiles.openfreemap.org/styles/liberty',
       center: [8.5456, 47.3739],
-      zoom: 11
+      zoom: 9.5
 });
