@@ -22,8 +22,8 @@ map.on("load", () => {
 
   // Set the waypoints programmatically
   directions.setWaypoints([
-    [-73.8271025, 40.8032906],
-    [-73.8671258, 40.82234996],
+    [8.5456, 47.3739],
+    [8.5466, 47.3749],
   ]);
 
   // Remove waypoints
