@@ -6,8 +6,6 @@ var map = new maplibregl.Map({
       zoom: 9.5
 });
 
-import MapLibreGlDirections, { LoadingIndicatorControl } from "@maplibre/maplibre-gl-directions";
-
 // Make sure to create a MapLibreGlDirections instance only after the map is loaded
 map.on("load", () => {
   // Create an instance of the default class
