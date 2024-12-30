@@ -1,4 +1,3 @@
-import MapLibreGlDirections, { LoadingIndicatorControl } from "@maplibre/maplibre-gl-directions";
 
 var map = new maplibregl.Map({
       container: 'map',
@@ -6,6 +5,8 @@ var map = new maplibregl.Map({
       center: [8.5456, 47.3739],
       zoom: 9.5
 });
+
+import MapLibreGlDirections, { LoadingIndicatorControl } from "@maplibre/maplibre-gl-directions";
 
 // Make sure to create a MapLibreGlDirections instance only after the map is loaded
 map.on("load", () => {
