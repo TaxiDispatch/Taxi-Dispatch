@@ -1,4 +1,3 @@
-
 var map = new maplibregl.Map({
       container: 'map',
       style: 'https://tiles.openfreemap.org/styles/liberty',
@@ -10,6 +9,7 @@ var map = new maplibregl.Map({
 map.on("load", () => {
   // Create an instance of the default class
   const directions = new MapLibreGlDirections(map);
+      serviceUrl: "https://router.project-osrm.org/route/v1"
 
   // Enable interactivity (if needed)
   directions.interactive = true;
