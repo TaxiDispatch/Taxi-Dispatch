@@ -9,7 +9,8 @@ var map = new maplibregl.Map({
 map.on("load", () => {
   // Create an instance of the default class
   const directions = new MapLibreGlDirections(map);
-      serviceUrl: "https://router.project-osrm.org/route/v1"
+      serviceUrl: "https://router.project-osrm.org/route/v1",
+      profile: "driving", // Verplaatsingsprofiel
 
   // Enable interactivity (if needed)
   directions.interactive = true;
