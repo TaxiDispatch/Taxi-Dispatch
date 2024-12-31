@@ -5,48 +5,69 @@ var map = new maplibregl.Map({
       zoom: 9.5
 });
 
-function getRoute(start, end) {
-    const url = `https://router.project-osrm.org/route/v1/driving/${start.join(',')};${end.join(',')}?overview=full&geometries=geojson`;
-
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        const routeCoordinates = data.routes[0].geometry.coordinates;
-
-      // Check and remove existing route
-      if (map.getSource('route')) {
-        map.removeLayer('route');
-        map.removeSource('route');
-
-        // Add the route to the map
-        map.addSource('route', {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            geometry: {
-              type: 'LineString',
-              coordinates: routeCoordinates
-            }
-          }
+map.on("load", () => {
+      // Get route from Routing API
+      let start = [11.393712, 47.259938],
+        end = [11.430896, 47.28187];
+      let url = new URL("https://maptoolkit.p.rapidapi.com/route");
+      url.searchParams.append("point", `${start[1]},${start[0]}`);
+      url.searchParams.append("point", `${end[1]},${end[0]}`);
+      url.searchParams.append("routeType", "car");
+      url.searchParams.append("rapidapi-key", "your-api-key");
+      fetch(url)
+        .then((r) => r.json())
+        .then((route) => {
+          let path = route.paths[0];
+          // Add route polyline to map
+          let coordinates = polyline.decode(path.points).map(c => c.reverse());
+          console.log(coordinates);
+          map.addLayer({
+            id: "route",
+            type: "line",
+            source: {
+              type: "geojson",
+              data: {
+                type: "Feature",
+                geometry: {
+                  type: "LineString",
+                  coordinates: coordinates,
+                },
+              },
+            },
+            layout: {
+              "line-join": "round",
+              "line-cap": "round",
+            },
+            paint: {
+              "line-color": "#2a3561",
+              "line-width": 5,
+            },
+          });
+          // Add instruction markers with popup to map
+          path.instructions.forEach((instruction) => {
+            let $img = document.createElement("img");
+            $img.src = "https://static.maptoolkit.net/sprites/maptoolkit/route-via.svg";
+            $img.width = 12;
+            $img.height = 12;
+            $img.style["cursor"] = "pointer";
+            new maplibregl.Marker({
+              element: $img,
+              anchor: "center",
+            })
+              .setLngLat(instruction.coordinate.reverse())
+              .addTo(map)
+              .setPopup(new maplibregl.Popup().setHTML(`<p>${instruction.text}</p>`));
+          });
+          // Add route end marker
+          let $img = document.createElement("img");
+          $img.src = "https://static.maptoolkit.net/sprites/maptoolkit/marker.svg";
+          $img.width = 29;
+          $img.height = 30;
+          let marker = new maplibregl.Marker({
+            element: $img,
+            anchor: "bottom",
+          })
+            .setLngLat(coordinates[coordinates.length - 1])
+            .addTo(map);
         });
-
-        map.addLayer({
-          id: 'route',
-          type: 'line',
-          source: 'route',
-          layout: {},
-          paint: {
-            'line-color': '#ff0000',
-            'line-width': 4
-          }
-        });
-      })
-      .catch(error => console.error('Error fetching route:', error));
-  }
-
-  // Fetch and display the route
-  map.on('load', function () {
-    const start = [8.5456, 47.3739]; // Start coordinates
-    const end = [8.5466, 47.3749];   // End coordinates
-    getRoute(start, end);
-  });
+    });
