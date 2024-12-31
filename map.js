@@ -13,6 +13,11 @@ function getRoute(start, end) {
       .then(data => {
         const routeCoordinates = data.routes[0].geometry.coordinates;
 
+      // Check and remove existing route
+      if (map.getSource('route')) {
+        map.removeLayer('route');
+        map.removeSource('route');
+
         // Add the route to the map
         map.addSource('route', {
           type: 'geojson',
