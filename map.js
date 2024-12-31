@@ -5,33 +5,43 @@ var map = new maplibregl.Map({
       zoom: 9.5
 });
 
-// Make sure to create a MapLibreGlDirections instance only after the map is loaded
-map.on("load", () => {
-  // Create an instance of the default class
-  const directions = new MapLibreGlDirections(map, {
-        serviceUrl: "https://router.project-osrm.org/route/v1",
-        profile: "driving" // Verplaatsingsprofiel
-      });
+function getRoute(start, end) {
+    const url = `https://router.project-osrm.org/route/v1/driving/${start.join(',')};${end.join(',')}?overview=full&geometries=geojson`;
 
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        const routeCoordinates = data.routes[0].geometry.coordinates;
 
-  // Enable interactivity (if needed)
-  directions.interactive = true;
+        // Add the route to the map
+        map.addSource('route', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            geometry: {
+              type: 'LineString',
+              coordinates: routeCoordinates
+            }
+          }
+        });
 
-  // Optionally add the standard loading-indicator control
-  map.addControl(new LoadingIndicatorControl(directions));
+        map.addLayer({
+          id: 'route',
+          type: 'line',
+          source: 'route',
+          layout: {},
+          paint: {
+            'line-color': '#ff0000',
+            'line-width': 4
+          }
+        });
+      })
+      .catch(error => console.error('Error fetching route:', error));
+  }
 
-  // Set the waypoints programmatically
-  directions.setWaypoints([
-    [8.5456, 47.3739],
-    [8.5466, 47.3749],
-  ]);
-
-  // Remove waypoints
-  directions.removeWaypoint(0);
-
-  // Add waypoints
-  directions.addWaypoint([-73.8671258, 40.82234996], 0);
-
-  // Remove everything plugin-related from the map
-  directions.clear();
-});
+  // Fetch and display the route
+  map.on('load', function () {
+    const start = [8.5456, 47.3739]; // Start coordinates
+    const end = [8.5466, 47.3749];   // End coordinates
+    getRoute(start, end);
+  });
